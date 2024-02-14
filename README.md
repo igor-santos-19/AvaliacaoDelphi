@@ -1,4 +1,4 @@
-# Teste Desenvolvedor Delphi
+# Teste Prático Desenvolvedor Delphi
 
 Este repositório foi criado com intuito de disponibilizar os pré-requisitos e o teste prático para se tornar um Desenvolvedor Delphi da AMHP.
 
