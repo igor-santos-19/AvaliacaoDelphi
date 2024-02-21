@@ -31,6 +31,6 @@ A aplicação deverá se desenvolvida usando o paradigma de orientação a objet
 3. Ao final fazer um pull request com os ajustes.
     
 **Observação**
-- A execução da avaliação tem um período de 24h contados a partir do recebimento do link pelo nosso RH.
+- A execução da avaliação tem um período de 48h contados a partir do recebimento do link pelo nosso RH.
   
 ## Boa sorte!
