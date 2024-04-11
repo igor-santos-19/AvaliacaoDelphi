@@ -1,0 +1,159 @@
+unit cadastro;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ComCtrls, Vcl.StdCtrls, Vcl.Mask,
+  Vcl.ExtCtrls, Vcl.DBCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, Vcl.Buttons, report, Unit3;
+
+type
+  TForm1 = class(TForm)
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    TabSheet2: TTabSheet;
+    DBGrid1: TDBGrid;
+    DataSource1: TDataSource;
+    Button1: TButton;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    BitBtn1: TBitBtn;
+    Edit2: TEdit;
+    Edit3: TEdit;
+    Edit4: TEdit;
+    Edit5: TEdit;
+    Edit6: TEdit;
+    Edit7: TEdit;
+    DBGrid2: TDBGrid;
+    DataSource2: TDataSource;
+    Edit8: TEdit;
+    Edit9: TEdit;
+    Label9: TLabel;
+    CPF: TLabel;
+    Enviar: TBitBtn;
+    GerarRelatorio: TButton;
+    ListBox1: TListBox;
+    Button2: TButton;
+    CriarVinculo: TBitBtn;
+    BitBtn2: TBitBtn;
+    CarregarGrid: TBitBtn;
+    procedure BitBtn1Click(Sender: TObject);
+    procedure GerarRelatorioClick(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure CriarVinculoClick(Sender: TObject);
+    procedure BitBtn2ClickGridPJ(Sender: TObject);
+    procedure BitBtn2ClickGridPF(Sender: TObject);
+    procedure CarregarGridClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+{$R *.dfm}
+
+uses modulo;
+
+procedure TForm1.BitBtn1Click(Sender: TObject);
+begin
+  with DMCadastros.qryPessoaJuridica do
+  begin
+    Close;
+    SQL.Clear;
+    SQL.Add('INSERT INTO PESSOAJURIDICA (CNPJ, NOME, ENDERECO, TELEFONE, EMAIL, CELULAR)');
+    SQL.Add('VALUES (:cnpj, :nome, :end, :telefone, :email, :celular)');
+    ParamByName('cnpj').AsString := Edit2.Text;
+    ParamByName('nome').AsString := Edit3.Text;
+    ParamByName('end').AsString := Edit4.Text;
+    ParamByName('telefone').AsString := Edit5.Text;
+    ParamByName('email').AsString := Edit6.Text;
+    ParamByName('celular').AsString := Edit7.Text;
+    ExecSQL;
+  end;
+end;
+
+procedure TForm1.BitBtn2ClickGridPJ(Sender: TObject);
+begin
+  DMCadastros.qryPessoaJuridica.Close;
+  DMCadastros.qryPessoaJuridica.SQL.Clear;
+  DMCadastros.qryPessoaJuridica.SQL.Add('SELECT * FROM PESSOAJURIDICA');
+  DMCadastros.qryPessoaJuridica.Open;
+end;
+
+procedure TForm1.BitBtn2ClickGridPF(Sender: TObject);
+begin
+  DMCadastros.qryPessoaFisica.Close;
+  DMCadastros.qryPessoaFisica.SQL.Clear;
+  DMCadastros.qryPessoaFisica.SQL.Add('SELECT * FROM PESSOAFISICA');
+  DMCadastros.qryPessoaFisica.Open;
+end;
+
+
+procedure TForm1.CarregarGridClick(Sender: TObject);
+begin
+  DMCadastros.qryPessoaJuridica.Close;
+  DMCadastros.qryPessoaJuridica.SQL.Clear;
+  DMCadastros.qryPessoaJuridica.SQL.Add('SELECT * FROM PESSOAJURIDICA');
+  DMCadastros.qryPessoaJuridica.Open;
+  Form2.QrJuridica.Preview
+  end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  DMCadastros.qryPessoaFisica.Open;
+  ListBox1.Clear;
+  DMCadastros.qryPessoaFisica.First;
+  while not DMCadastros.qryPessoaFisica.EOF do
+  begin
+    Listbox1.Items.Add(DMCadastros.qryPessoaFisicaNome.value);
+    DMCadastros.qryPessoaFisica.Next;
+  end;
+
+end;
+
+procedure TForm1.CriarVinculoClick(Sender: TObject);
+var
+  PessoaFisicaSelecionada: string;
+  PessoaJuridicaCNPJ: string;
+begin
+
+  if DBGrid1.SelectedRows.Count = 0 then
+  begin
+    ShowMessage('Selecione uma pessoa jurídica na lista.');
+    Exit;
+  end;
+
+  DMCadastros.qryPessoaJuridica.Locate('CNPJ', DBGrid1.SelectedField.AsString, []);
+  PessoaJuridicaCNPJ := DMCadastros.qryPessoaJuridica.FieldByName('CNPJ').AsString;
+
+  try
+    DMCadastros.qryVinculoPessoaJuridica.Insert;
+    DMCadastros.qryVinculoPessoaJuridica.FieldByName('IDPESSOAJURIDICA').AsString := PessoaJuridicaCNPJ;
+    DMCadastros.qryVinculoPessoaJuridica.FieldByName('IDPESSOAFISICA').AsString := PessoaFisicaSelecionada;
+    DMCadastros.qryVinculoPessoaJuridica.Post;
+    ShowMessage('Pessoa física vinculada com sucesso à pessoa jurídica.');
+  except
+    on E: Exception do
+      ShowMessage('Erro ao vincular a pessoa física à pessoa jurídica: ' + E.Message);
+  end;
+end;
+
+procedure TForm1.GerarRelatorioClick(Sender: TObject);
+begin
+  DMCadastros.qryPessoaFisica.Close;
+  DMCadastros.qryPessoaFisica.SQL.Clear;
+  DMCadastros.qryPessoaFisica.SQL.Add('SELECT * FROM PESSOAFISICA');
+  DMCadastros.qryPessoaFisica.Open;
+  Form3.QrFisica.preview;
+end;
+
+end.
